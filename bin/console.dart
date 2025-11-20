@@ -22,7 +22,7 @@ void _displayDashboard(Map<String, dynamic> data) {
   var compte = data['compte'];
   if (compte != null) {
     print(' Informations Compte:');
-    print('   Numéro de compte: ${compte['numero_compte']}');
+    print('   Numéro de compte: ${compte['id']}');
     print('   Solde: ${compte['solde']} ${compte['devise']}');
     print('');
   } else {
@@ -62,7 +62,7 @@ void _displayDashboard(Map<String, dynamic> data) {
 }
 
 Future<void> main() async {
-  const baseUrl = 'http://127.0.0.1:8000/api';
+  const baseUrl = 'http://localhost:8000/api';
 
   // Instantiate services
   final authService = AuthService(baseUrl);

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dio/dio.dart';
 import '../service/compte_service.dart';
 
 class CompteView {
@@ -24,7 +25,7 @@ class CompteView {
     var compte = data['compte'];
     if (compte != null) {
       print(' Informations Compte:');
-      print('   Numéro de compte: ${compte['numero_compte']}');
+      print('   Numéro de compte: ${compte['id']}');
       print('   Solde: ${compte['solde']} ${compte['devise']}');
       print('');
     } else {
@@ -158,22 +159,40 @@ class CompteView {
         if (compte != null) {
           String compteId = compte['id'].toString();
 
+          print('Choisir le type de paiement:');
+          print('1. Par numéro de téléphone');
+          print('2. Par code marchand');
+          print('Votre choix: ');
+          String? choice = stdin.readLineSync();
+
           print('Enter montant: ');
           String? montantStr = stdin.readLineSync();
-          print('Enter recipient telephone (or leave empty): ');
-          String? recipientTelephone = stdin.readLineSync();
-          print('Enter marchand code (or leave empty): ');
-          String? marchandCode = stdin.readLineSync();
 
           if (montantStr != null) {
             double? montant = double.tryParse(montantStr);
             if (montant != null) {
               Map<String, dynamic> data = {'montant': montant};
-              if (recipientTelephone != null && recipientTelephone.isNotEmpty) {
-                data['recipient_telephone'] = recipientTelephone;
-              }
-              if (marchandCode != null && marchandCode.isNotEmpty) {
-                data['marchand_code'] = marchandCode;
+              if (choice == '1') {
+                print('Enter recipient telephone: ');
+                String? recipientTelephone = stdin.readLineSync();
+                if (recipientTelephone != null && recipientTelephone.isNotEmpty) {
+                  data['recipient_telephone'] = recipientTelephone;
+                } else {
+                  print('Numéro de téléphone requis.');
+                  return;
+                }
+              } else if (choice == '2') {
+                print('Enter marchand code: ');
+                String? marchandCode = stdin.readLineSync();
+                if (marchandCode != null && marchandCode.isNotEmpty) {
+                  data['marchand_code'] = marchandCode;
+                } else {
+                  print('Code marchand requis.');
+                  return;
+                }
+              } else {
+                print('Choix invalide.');
+                return;
               }
               var result = await compteService.pay(compteId, data);
               if (result['success'] == true) {
@@ -194,6 +213,9 @@ class CompteView {
       }
     } catch (e) {
       print('Payment failed: $e');
+      if (e is DioException && e.response != null) {
+        print('Response: ${e.response?.data}');
+      }
     }
     print('Press Enter to continue...');
     stdin.readLineSync();
@@ -238,6 +260,9 @@ class CompteView {
       }
     } catch (e) {
       print('Transfer failed: $e');
+      if (e is DioException && e.response != null) {
+        print('Response: ${e.response?.data}');
+      }
     }
     print('Press Enter to continue...');
     stdin.readLineSync();
