@@ -1,6 +1,6 @@
-# Console Dart - Application de Gestion Financière
+# Console Dart - Application Mobile Money
 
-Une application console Dart qui communique avec un backend Laravel pour gérer les comptes, transactions, clients et authentification. Idéale pour les débutants en Dart et en architecture d'application.
+Une application console Dart pour la gestion de comptes mobile money. Permet de consulter le solde, effectuer des paiements et transferts, et voir l'historique des transactions via une API Laravel.
 
 ## Table des Matières
 
@@ -17,7 +17,15 @@ Une application console Dart qui communique avec un backend Laravel pour gérer 
 
 ## Description
 
-Cette application console permet d'interagir avec une API Laravel pour effectuer des opérations CRUD (Créer, Lire, Mettre à Jour, Supprimer) sur les comptes bancaires, transactions, clients et gérer l'authentification. Elle utilise Dio pour les requêtes HTTP asynchrones et suit une architecture modulaire avec séparation des responsabilités.
+Cette application console permet à un utilisateur de gérer son compte mobile money via une interface en ligne de commande. Elle communique avec un backend Laravel pour :
+
+- Consulter les informations du profil
+- Voir le solde du compte
+- Effectuer des paiements (vers un numéro de téléphone ou un marchand)
+- Faire des transferts d'argent
+- Consulter l'historique des transactions
+
+L'application utilise Dio pour les requêtes HTTP et suit une architecture MVC adaptée à une console.
 
 ## Prérequis
 
@@ -60,18 +68,25 @@ Pour lancer l'application console :
 dart run bin/console.dart
 ```
 
-L'application commence par afficher la **page de compte** avec les options suivantes :
+L'application commence par afficher la **page d'authentification** avec les options suivantes :
 - Register : Inscription d'un nouvel utilisateur
 - Login : Connexion à un compte existant
 - Logout : Déconnexion
 - Exit : Quitter l'application
 
 Après une connexion réussie, l'application affiche le **menu principal** avec accès aux fonctionnalités :
-- Comptes : Gestion des comptes bancaires
-- Transactions : Gestion des transactions
-- Clients : Gestion des clients
-- Déconnexion : Retour à la page de compte
+- Mon Profil : Voir les informations utilisateur et compte
+- Comptes : Menu de gestion du compte (solde, paiements, transferts, transactions)
+- Déconnexion : Retour à la page d'authentification
 - Exit : Quitter l'application
+
+### Menu Comptes
+
+- Profil : Informations détaillées du compte
+- Voir Solde : Consulter le solde actuel
+- Payer : Effectuer un paiement (choix entre téléphone ou marchand)
+- Transferer : Transférer de l'argent à un autre client
+- Liste des Transactions : Historique des transactions
 
 ## Architecture
 
@@ -100,9 +115,7 @@ ompay_dart_console/
 │   └── apiService.dart          # Classe de base pour les requêtes HTTP
 ├── service/
 │   ├── auth_service.dart        # Service d'authentification
-│   ├── compte_service.dart      # Service de gestion des comptes
-│   ├── transaction_service.dart # Service de gestion des transactions
-│   └── client_service.dart      # Service de gestion des clients
+│   └── compte_service.dart      # Service de gestion des comptes et transactions
 ├── model/
 │   ├── user.dart                # Modèle Utilisateur
 │   ├── compte.dart              # Modèle Compte
@@ -110,9 +123,7 @@ ompay_dart_console/
 │   └── client.dart              # Modèle Client
 ├── view/
 │   ├── auth_view.dart           # Interface d'authentification
-│   ├── compte_view.dart         # Interface de gestion des comptes
-│   ├── transaction_view.dart    # Interface de gestion des transactions
-│   └── client_view.dart         # Interface de gestion des clients
+│   └── compte_view.dart         # Interface de gestion des comptes et transactions
 ├── bin/
 │   └── console.dart             # Point d'entrée principal
 ├── test/
@@ -126,29 +137,17 @@ ompay_dart_console/
 
 ### Authentification
 - Inscription d'un nouvel utilisateur
-- Connexion
+- Connexion avec numéro de téléphone
 - Déconnexion
 
-### Gestion des Comptes
-- Lister tous les comptes
-- Voir un compte spécifique
-- Créer un nouveau compte
-- Modifier un compte existant
-- Supprimer un compte
-
-### Gestion des Transactions
-- Lister toutes les transactions
-- Voir une transaction spécifique
-- Créer une nouvelle transaction
-- Modifier une transaction
-- Supprimer une transaction
-
-### Gestion des Clients
-- Lister tous les clients
-- Voir un client spécifique
-- Créer un nouveau client
-- Modifier un client
-- Supprimer un client
+### Gestion du Compte Utilisateur
+- Consulter les informations du profil
+- Voir le solde du compte
+- Effectuer des paiements :
+  - Vers un numéro de téléphone
+  - Vers un marchand (avec code marchand)
+- Transférer de l'argent à un autre client
+- Consulter l'historique des transactions
 
 ## API Backend
 
@@ -159,26 +158,14 @@ L'application communique avec un backend Laravel via les endpoints suivants :
 - `POST /api/register` - Inscription (avec téléphone)
 - `POST /api/logout` - Déconnexion
 
-### Comptes
-- `GET /api/comptes` - Lister les comptes
-- `GET /api/comptes/{id}` - Voir un compte
-- `POST /api/comptes` - Créer un compte
-- `PUT /api/comptes/{id}` - Modifier un compte
-- `DELETE /api/comptes/{id}` - Supprimer un compte
+### Gestion du Compte
+- `GET /api/me` - Informations du profil utilisateur et compte
+- `GET /api/compte/{numeroCompte}/solde` - Consulter le solde
+- `POST /api/compte/{numeroCompte}/pay` - Effectuer un paiement
+- `POST /api/compte/{numeroCompte}/transfer` - Effectuer un transfert
+- `GET /api/compte/{numeroCompte}/transactions` - Historique des transactions
 
-### Transactions
-- `GET /api/transactions` - Lister les transactions
-- `GET /api/transactions/{id}` - Voir une transaction
-- `POST /api/transactions` - Créer une transaction
-- `PUT /api/transactions/{id}` - Modifier une transaction
-- `DELETE /api/transactions/{id}` - Supprimer une transaction
-
-### Clients
-- `GET /api/clients` - Lister les clients
-- `GET /api/clients/{id}` - Voir un client
-- `POST /api/clients` - Créer un client
-- `PUT /api/clients/{id}` - Modifier un client
-- `DELETE /api/clients/{id}` - Supprimer un client
+**Note** : `{numeroCompte}` est le numéro du compte (ex: "CMPT-123456")
 
 ## Comment Contribuer
 
@@ -206,9 +193,13 @@ L'application communique avec un backend Laravel via les endpoints suivants :
 ## Dépannage
 
 ### Erreur de Connexion
-- Vérifiez que le backend Laravel est démarré
-- Vérifiez l'URL dans `bin/console.dart` (const baseUrl)
+- Vérifiez que le backend Laravel est démarré (`php artisan serve`)
+- Vérifiez l'URL dans `bin/console.dart` (const baseUrl = 'http://localhost:8000/api')
 - Vérifiez la connectivité réseau
+
+### Erreur 302 Redirection
+- Le serveur Laravel peut rediriger si l'host est mal configuré
+- Assurez-vous que le serveur est lancé avec `--host=127.0.0.1`
 
 ### Erreur de Compilation
 ```bash
@@ -226,6 +217,15 @@ Réinstalle les dépendances.
 - L'application attend une entrée utilisateur
 - Appuyez sur Entrée ou tapez une option valide
 
+### Erreur "Montant insuffisant"
+- Vérifiez le solde avec l'option "Voir Solde"
+- Le solde est calculé à partir des transactions
+
+### Erreur "Destinataire invalide"
+- Le destinataire doit avoir un compte vérifié
+- Utilisez le numéro de téléphone correct (ex: "775942400")
+- Pour les marchands, utilisez le code correct (ex: "MARCHAND-123")
+
 ## Ressources pour Débutants
 
 - [Documentation Dart Officielle](https://dart.dev/guides)
@@ -237,6 +237,15 @@ Réinstalle les dépendances.
 
 Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
 
+## Données de Test
+
+Pour tester l'application, des données de test ont été ajoutées :
+
+- Client destinataire : téléphone `775942400`
+- Marchand : code `MARCHAND-123`
+
+Utilisez ces valeurs pour tester les paiements et transferts.
+
 ---
 
-**Note** : Cette documentation est automatiquement mise à jour avec chaque modification du projet. Pour les contributions, veuillez suivre les bonnes pratiques décrites ci-dessus.
+**Note** : Cette documentation reflète les fonctionnalités actuelles de l'application mobile money.
